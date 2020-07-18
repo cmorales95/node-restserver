@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const Usuario = require("../models/Usuario");
+const bcrypt = require("bcrypt");
 
 app.get("/usuario", function (req, res) {
   res.json("Hello World To Local Environment!");
@@ -11,7 +12,7 @@ app.post("/usuario", function (req, res) {
   const usuario = new Usuario({
     nombre: body.nombre,
     email: body.email,
-    password: body.password,
+    password: bcrypt.hashSync(body.password, 10),
     rol: body.rol,
   });
 
@@ -29,14 +30,27 @@ app.post("/usuario", function (req, res) {
       ok: true,
       usuario: usuarioDB,
     });
-    
   });
 });
 
 app.put("/usuario/:id", function (req, res) {
   const id = req.params.id;
-  res.json({
-    id,
+  const { body } = req;
+
+  Usuario.findByIdAndUpdate(id, body, {new: true}, (err, usuarioDB) => {
+    //! Error al guardar
+    if (err) {
+      return res.status(400).json({
+        ok: false,
+        err,
+      });
+    }
+
+    //* Actualizado correctamente
+    res.json({
+      ok: true,
+      usuario: usuarioDB,
+    });
   });
 });
 
