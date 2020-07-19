@@ -16,6 +16,7 @@
     "express": "^4.17.1",
     "mongoose": "^5.9.25",
     "mongoose-unique-validator": "^2.0.3",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "underscore": "^1.10.2"
   }
 }
