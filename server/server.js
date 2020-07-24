@@ -14,7 +14,12 @@ app.use(bodyParser.json());
 // routes
 app.use(require('./routes/usuario'));
 
-mongoose.connect('mongodb://localhost:27017/cafe', {
+//* Fix deprecated monngose
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.connect(process.env.urlDB,   {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then((resp) => { console.log('Connected to Mongo!!'); })
