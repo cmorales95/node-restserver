@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // routes
-app.use(require('./routes/usuario'));
+app.use(require('./routes/index'));
 
 //* Fix deprecated monngose
 mongoose.set('useNewUrlParser', true);

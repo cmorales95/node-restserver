@@ -1,10 +1,11 @@
 "use strict";
 const express = require("express");
 const app = express();
-const Usuario = require("../models/Usuario");
 const bcrypt = require("bcrypt");
 const _ = require("underscore");
 
+const Usuario = require("../models/Usuario");
+const { verificarToken } = require("../middlewares/autenticacion");
 // functions
 const sendError = (res, status, error) => {
   return res.status(status).json({
@@ -21,7 +22,7 @@ const sendJson = (res, usuario) => {
 };
 
 // http require
-app.get("/usuario", function (req, res) {
+app.get("/usuario", verificarToken ,function (req, res) {
   const desde = Number(req.query.desde) || 0;
   const limite = Number(req.query.limite) || 5;
 
