@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === "dev") {
 
 process.env.urlDB = urlDB;
 
-
+process.env.CLIENT_ID = process.env.CLIENT_ID || '363147606418-jt8sh08epcqk0l72hvmlhlrpcce4vsc4.apps.googleusercontent.com';
 
 /**
  * 
@@ -45,3 +45,5 @@ process.env.urlDB = urlDB;
   heroku config:set SEED ='value' - creating the var in heroku
  * 
  */
+
+

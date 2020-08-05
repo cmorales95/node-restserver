@@ -5,11 +5,15 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 const bodyParser = require("body-parser");
+const path = require('path');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json());
+
+// Habilitar la carpeta public
+app.use(express.static(path.join(__dirname, '../public')));
 
 // routes
 app.use(require('./routes/index'));
