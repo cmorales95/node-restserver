@@ -14,12 +14,38 @@ const sendError = (res, status, error) => {
 	});
 };
 
-const sendJson = (res, usuario) => {
+const sendJson = (res, value) => {
 	return res.json({
 		ok: true,
-		usuario,
+		value,
 	});
 };
+
+// Obtain Categories
+app.get('/categoria', verificarToken, (req, res) => {
+	//* Load Categories
+	Categoria.find({}, 'nombre').exec((err, categorias) => {
+		if (err) return sendError(res, 400, err);
+		//* Count the rows
+		Categoria.count({}, (err, total) => {
+			res.json({
+				ok: true,
+				categorias,
+				total,
+			});
+		});
+	});
+});
+
+// Obtain a Category
+app.get('/categoria/:id', verificarToken, (req, res) => {
+	const id = req.params.id;
+	Categoria.findById(id, (err, categoria) => {
+		console.log(err);
+		if (err) return sendError(res, 400, err);
+		sendJson(res, categoria);
+	});
+});
 
 // Create Category
 app.post('/categoria', [verificarToken, verificarAdmin_Role], (req, res) => {
@@ -30,23 +56,35 @@ app.post('/categoria', [verificarToken, verificarAdmin_Role], (req, res) => {
 	}); //* Creating a new category
 
 	categoria.save((err, usuarioDB) => {
-		//! Error saving category
 		if (err) return sendError(res, 400, err);
-
-		//* Ok
 		sendJson(res, usuarioDB);
 	});
 });
 
-module.exports = app;
+app.put('/categoria/:id', [verificarToken, verificarAdmin_Role], (req, res) => {
+	const id = req.params.id;
+	const nombre = req.body.nombre;
+	Categoria.findByIdAndUpdate(
+		id,
+		{ nombre },
+		{ new: true, runValidators: true, context: 'query' },
+		(err, categoria) => {
+			if (err) return sendError(res, 400, err);
+			sendJson(res, categoria);
+		}
+	);
+});
 
-/**
- categorias.get;
- * Mostrar
- *  Categorias: Get
- *  CategoriaPorId: Get
- *  Nueva Categoria: Post
- *  Actualizar Categoria: Put
- *  Eliminar Categoria: Delete (Solo un admin la puede borrar)
- *
- */
+app.delete(
+	'/categoria/:id',
+	[verificarToken, verificarAdmin_Role],
+	(req, res) => {
+		const id = req.params.id;
+		Categoria.findByIdAndDelete(id, (err, categoria) => {
+			if (err) return sendError(res, 400, err);
+			sendJson(res, categoria);
+		});
+	}
+);
+
+module.exports = app;

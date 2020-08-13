@@ -34,7 +34,7 @@ app.get('/usuario', verificarToken, function (req, res) {
 		.limit(limite)
 		.exec((err, usuarios) => {
 			//! Error al consultar
-			if (err) return sendError(res, 200, err);
+			if (err) return sendError(res, 400, err);
 
 			Usuario.count({ estado: true }, (err, total) => {
 				res.json({
@@ -60,7 +60,7 @@ app.post('/usuario', [verificarToken, verificarAdmin_Role], function (
 
 	usuario.save((err, usuarioDB) => {
 		//! Error al guardar
-		if (err) return sendError(res, 200, err);
+		if (err) return sendError(res, 400, err);
 
 		//* Guardo correctamente
 		sendJson(res, usuarioDB);
@@ -80,7 +80,7 @@ app.put('/usuario/:id', [verificarToken, verificarAdmin_Role], function (
 		{ new: true, runValidators: true, context: 'query' },
 		(err, usuarioDB) => {
 			//! Error al guardar
-			if (err) return sendError(res, 200, err);
+			if (err) return sendError(res, 400, err);
 
 			//* Actualizado correctamente
 			sendJson(res, usuarioDB);
@@ -99,7 +99,7 @@ app.delete('/usuario/:id', [verificarToken, verificarAdmin_Role], function (
 		{ new: true, context: 'query' },
 		(err, usuarioBorrado) => {
 			//! Error al guardar
-			if (err) return sendError(res, 200, err);
+			if (err) return sendError(res, 400, err);
 
 			//* Actualizado correctamente
 			sendJson(res, usuarioBorrado);
@@ -109,10 +109,10 @@ app.delete('/usuario/:id', [verificarToken, verificarAdmin_Role], function (
 	// Eliminacion fisica desactivada
 	// Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
 	//   //! Error al eliminar
-	//   if (err) return sendError(res, 200, err);
+	//   if (err) return sendError(res, 400, err);
 
 	//   //! Alerta de usuario no encontrado
-	//   if (usuarioBorrado === null) return sendError(res, 200, 'Usuario no encontrado');
+	//   if (usuarioBorrado === null) return sendError(res, 400, 'Usuario no encontrado');
 
 	//   sendJson(res, usuarioBorrado);
 	// });
