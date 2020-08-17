@@ -29,8 +29,8 @@ app.get('/producto', verificarToken, (req, res) => {
 		.skip(desde)
 		.limit(limite)
 		.populate('categoria', 'nombre')
-		.populate('usuario', 'nombre')
-		.exec((err.productos) => {
+		.populate('usuario', 'nombre email')
+		.exec((err, productos) => {
 			if (err) return sendError(res, 500, err);
 			if (!productos) {
 				return sendError(res, 404, 'No hay productos disponibles');
@@ -48,25 +48,27 @@ app.get('/producto', verificarToken, (req, res) => {
 
 app.get('/producto/:id', verificarToken, (req, res) => {
 	const id = req.params.id;
-	Producto.findById(id, (err, producto) => {
-		if (err) return sendError(res, 500, err);
-		if (!producto) return sendError(res, 404, 'Producto no encontrado');
-		if (producto.disponible === false)
-			return sendError(res, 400, 'Producto no disponible');
-		return sendJson(res, 200, producto);
-	});
+	Producto.findById(id)
+		.populate('categoria', 'nombre')
+		.populate('usuario', 'nombre email')
+		.exec((err, producto) => {
+			if (err) return sendError(res, 500, err);
+			if (!producto) return sendError(res, 404, 'Producto no encontrado');
+			if (producto.disponible === false)
+				return sendError(res, 400, 'Producto no disponible');
+			return sendJson(res, 200, producto);
+		});
 });
 
 app.post('/producto', verificarToken, (req, res) => {
 	const body = req.body;
 	const producto = new Producto({
 		nombre: body.nombre,
-		precioUni: body.precioUni,
+		precioUni: Number(body.precioUni),
 		descripcion: body.descripcion,
 		categoria: body.categoria,
 		usuario: req.usuario._id,
 	});
-
 	producto.save((err, productoDB) => {
 		if (err) return sendError(res, 400, err);
 		return sendJson(res, 201, productoDB);
@@ -77,7 +79,7 @@ app.put('/producto/:id', verificarToken, (req, res) => {
 	const id = req.params.id;
 	const body = _.pick(req.body, [
 		'nombre',
-		'precioUno',
+		'precioUni',
 		'descripcion',
 		'disponible',
 		'categoria',
@@ -89,6 +91,7 @@ app.put('/producto/:id', verificarToken, (req, res) => {
 		{ new: true, runValidators: true, context: 'query' },
 		(err, producto) => {
 			if (err) return sendError(res, 500, err);
+			if (!producto) return sendError(res, 400, 'Producto no existe');
 			return sendJson(res, 200, producto);
 		}
 	);
@@ -104,9 +107,22 @@ app.delete('/producto/:id', verificarToken, (req, res) => {
 		(err, producto) => {
 			if (err) return sendError(res, 500, err);
 			if (!producto) return sendError(res, 404, 'Producto no encontrado');
-			return sendJson(res, 200, producto);
+			return sendJson(res, 200, 'Producto ha sido inhabilitado');
 		}
 	);
+});
+
+app.get('/producto/buscar/:termino', verificarToken, (req, res) => {
+	const termino = req.params.termino;
+	const regex = new RegExp(termino, 'i');
+
+	Producto.find({ nombre: regex })
+		.populate('categoria', 'nombre')
+		.populate('usuario', 'nombre email')
+		.exec((err, productos) => {
+			if (err) return sendError(res, 500, err);
+			return sendJson(res, 200, productos);
+		});
 });
 
 module.exports = app;
